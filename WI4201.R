@@ -1,10 +1,8 @@
-library(Matrix)
-
-
 #Required packages
-install.packages('Matrix')
-library(Matrix)
-
+Packages <- c('Matrix', 'netprioR')
+Packages_New <- Packages[!(Packages %in% installed.packages())]
+install.packages(Packages_New)
+invisible(lapply(Packages, library, character.only = TRUE))
 
 #### -------------------------- > 1 Construct A^h and f -------------------------- ####
 
@@ -359,6 +357,9 @@ n = 2^2
 nzA = nnzero(A_2D(n)[[1]])
 nzC = nnzero(t(chol(A_2D(n)[[1]])))
 nzC/nzA
+
+
+#### -------------------------- > 5 Fill-in ratio -------------------------- ####
 
 
 
