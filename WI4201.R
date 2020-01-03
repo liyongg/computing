@@ -1,5 +1,14 @@
 library(Matrix)
 
+
+#Required packages
+install.packages('Matrix')
+library(Matrix)
+
+
+#### -------------------------- > 1 Construct A^h and f -------------------------- ####
+
+#### 2D ####
 #Function f for 2D
 function_FUN2 = function(x,y){
   return(-12*(x^2)*(y^5) - 20*(x^4)*(y^3))
@@ -85,6 +94,7 @@ A_2D <- function(n){
   return(list(sum,f))
 }
 
+#### 3D ####
 #Function f for 3D
 function_FUN4 = function(x,y,z){
   return(-12*(x^2)*(y^5)*(z^6) -20*(x^4)*(y^3)*(z^6) -30*(x^4)*(y^5)*(z^4))
@@ -173,6 +183,8 @@ A_3D <- function(n){
   return(list(sum,f))
 }
 
+
+#### -------------------------- > 2 Direct Solver -------------------------- ####
 #Exact solution in 2D
 function_uexact2d = function(x,y){
   return((x^4)*(y^5))
@@ -222,7 +234,7 @@ function_cholacc2d = function(u){
   return(accuracy)
 }
 
-
+#### 3D ####
 #Exact solution in 3D
 function_uexact3d = function(x,y,z){
   return((x^4)*(y^5)*(z^6))
@@ -274,22 +286,14 @@ function_cholacc3d = function(u){
   return(accuracy)
 }
 
-test <- function(){
-  n <- 2^(2:7)
-  times <- c()
-  for(i in 1:length(n)){
-    times[i] <-  system.time(function_cholsolv2d(A_2D(n[i])[[1]], A_2D(n[i])[[2]]), gcFirst = TRUE)
-  }
-}
+#### -------------------------- > 3 Plotting -------------------------- ####
 
-n <- 2^5
-# system.time(function_cholsolv2d(A_2D(n)[[1]], A_2D(n)[[2]]), gcFirst = TRUE)
-system.time(function_cholsolv2d(A_3D(n)[[1]], A_3D(n)[[2]]), gcFirst = TRUE)
+t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
 
 
+#### 2D #### 
+t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
 
-
-# 2D 
 n_2D <- 2^(2:7)
 nPlot_2D <- seq(1,
                 128,
@@ -317,7 +321,9 @@ plot(n_2D, Times_2D,
      xlab = 'N')
 lines(nPlot_2D, Fits_TO2D)
 
-# 3D 
+#### 3D ####
+t = system.time(function_cholsolv3d(A_3D(n)[[1]],A_3D(n)[[2]]), gcFirst = TRUE)
+
 n_3D <- 2^(2:5)
 nPlot_3D <- seq(1,
                 32,
@@ -345,6 +351,14 @@ plot(n_3D, Times_3D,
      ylab = 'CPU Time [s]',
      xlab = 'N')
 lines(nPlot_3D, Fits_TO3D)
+
+
+#### -------------------------- > 4 Fill-in ratio -------------------------- ####
+
+n = 2^2
+nzA = nnzero(A_2D(n)[[1]])
+nzC = nnzero(t(chol(A_2D(n)[[1]])))
+nzC/nzA
 
 
 
