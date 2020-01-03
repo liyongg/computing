@@ -1,5 +1,5 @@
 #Required packages
-Packages <- c('Matrix', 'netprioR')
+Packages <- c('Matrix', 'spam')
 Packages_New <- Packages[!(Packages %in% installed.packages())]
 install.packages(Packages_New)
 invisible(lapply(Packages, library, character.only = TRUE))
@@ -183,16 +183,18 @@ A_3D <- function(n){
 
 
 #### -------------------------- > 2 Direct Solver -------------------------- ####
+#### 2D ####
+
 #Exact solution in 2D
 function_uexact2d = function(x,y){
   return((x^4)*(y^5))
 }
 
 #Direct solver Cholesky decomposition 2D
-function_cholsolv2d = function(A,f){
+function_cholsolv2d = function(A,f, ...){
   
   #Use chol function for Cholesky decomposition
-  LT = chol(A, pivot = FALSE, cache = TRUE)
+  LT = Matrix::chol(A, pviot = ..., cache = TRUE)
   L = t(LT)
   
   #Forward solve Ly = f
@@ -239,12 +241,12 @@ function_uexact3d = function(x,y,z){
 }
 
 #Direct solver Cholesky decomposition 3D
-function_cholsolv3d = function(A,f){
+function_cholsolv3d = function(A,f, ...){
   
   #initialize matrix A, f and the Cholesky decomposition
   A = as.matrix(as.data.frame(A))
   f = as.matrix(as.data.frame(f))
-  LT = chol(A)
+  LT = Matrix::chol(A, pivot = ..., cache = TRUE)
   L = t(LT)
   
   #Forward solve Ly = f
@@ -286,7 +288,7 @@ function_cholacc3d = function(u){
 
 #### -------------------------- > 3 Plotting -------------------------- ####
 
-t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
+# t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
 
 
 #### 2D #### 
@@ -359,11 +361,10 @@ nzC = nnzero(t(chol(A_2D(n)[[1]])))
 nzC/nzA
 
 
-#### -------------------------- > 5 Fill-in ratio -------------------------- ####
+#### -------------------------- > 5 Reordering -------------------------- ####
 
-
-
-
+n <- 2^7
+(t = system.time(function_cholsolv2d(A_2D(n)[[1]], A_2D(n)[[2]], TRUE), gcFirst = TRUE))
 
 
 
