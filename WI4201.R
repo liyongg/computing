@@ -367,7 +367,6 @@ n <- 2^7
 (t = system.time(function_cholsolv2d(A_2D(n)[[1]], A_2D(n)[[2]], TRUE), gcFirst = TRUE))
 
 
-
 #### -------------------------- > 6 IC as BIM -------------------------- ####
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
