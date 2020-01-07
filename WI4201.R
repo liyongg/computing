@@ -1,5 +1,5 @@
 #Required packages
-Packages <- c('Matrix', 'spam', 'kernlab')
+Packages <- c('Matrix', 'spam', 'cPCG', 'matlib')
 Packages_New <- Packages[!(Packages %in% installed.packages())]
 install.packages(Packages_New)
 invisible(lapply(Packages, library, character.only = TRUE))
@@ -377,21 +377,25 @@ function_ICBIM2D = function(A, f, ...) {
   
   r = f - A%*%u
   
-  k = (A)
-  #kt = k %*% t(k)
-  #M = transpose(ktrans) %*% ktrans
+  k = icc(as.matrix(A))
+  M = k %*% t(k)
+  Minv = inv(M)
+  normf = norm(f, type = '2')
+
+  convcrit = norm(r, type = '2')/normf
+  iter = 0
   
-  #convcrit = norm(r)/norm(f)
-  
-  #while(convcrit <= epsilon){
-  #u = u + inverse(M) %*% r
-  #r = (I - A %*% inverse(M)) %*% r
-  #convcrit = norm(r)/norm(f)
-  #}
-  return(k)
+  while(epsilon <= convcrit){
+    u = u + Minv %*% r
+    r = (I - A %*% Minv) %*% r
+    convcrit = norm(r, type = '2')/normf
+    iter = iter + 1
+  }
+  return(iter)
 }
 
-function_ICBIM2D(A_2D(3)[[1]], A_2D(3)[[2]])
+function_ICBIM2D(A_2D(9)[[1]], A_2D(9)[[2]])
+function_uexact2d(1/9,1/9)
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
