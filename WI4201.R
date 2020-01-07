@@ -436,6 +436,8 @@ function_ICCG2D = function(n){
   return(u)
 }  
 
+# wat is dit voor troep
+
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
 #### -------------------------- > 12 CPU time for IC as preconditioner -------------------------- ####
