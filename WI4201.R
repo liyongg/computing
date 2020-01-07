@@ -194,7 +194,7 @@ function_uexact2d = function(x,y){
 function_cholsolv2d = function(A,f, ...){
   
   #Use chol function for Cholesky decomposition
-  LT = Matrix::chol(A, pviot = ..., cache = TRUE)
+  LT = Matrix::chol(A, pivot = ..., cache = TRUE)
   L = t(LT)
   
   #Forward solve Ly = f
@@ -370,17 +370,15 @@ n <- 2^7
 
 #### -------------------------- > 6 IC as BIM -------------------------- ####
 
-function_ICBIM2D = function(n) {
-  u = Matrix(0, (n+1)^2 , 1)
-  I = diag(1, (n+1)^2, 1)
+function_ICBIM2D = function(A, f, ...) {
+  u = Matrix(0, nrow = nrow(f) , 1)
+  I = diag(1, nrow = nrow(f), ncol = nrow(f))
   epsilon = 10^-10
-  
-  A = A_2D(n)[[1]]
-  f = A_2D(n)[[2]]
   
   r = f - A%*%u
   
-  ktrans = inchol(A)
+  k = (A)
+  #kt = k %*% t(k)
   #M = transpose(ktrans) %*% ktrans
   
   #convcrit = norm(r)/norm(f)
@@ -390,11 +388,10 @@ function_ICBIM2D = function(n) {
   #r = (I - A %*% inverse(M)) %*% r
   #convcrit = norm(r)/norm(f)
   #}
-  #ewaewaewa
-  return(ktrans)
+  return(k)
 }
 
-function_ICBIM2D(3)
+function_ICBIM2D(A_2D(3)[[1]], A_2D(3)[[2]])
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
