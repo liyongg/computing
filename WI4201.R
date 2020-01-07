@@ -406,6 +406,7 @@ function_uexact2d(1/9,1/9)
 #### -------------------------- > 10 Ic as preconditioner -------------------------- ####
 
 function_ICCG2D = function(n){
+  #first commit
   u = Matrix(0, (n+1)^2 , 1)
   A = A_2D(n)[[1]]
   f = A_2D(n)[[2]]
