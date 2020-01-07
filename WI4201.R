@@ -1,5 +1,5 @@
 #Required packages
-Packages <- c('Matrix', 'spam')
+Packages <- c('Matrix', 'spam', 'kernlab')
 Packages_New <- Packages[!(Packages %in% installed.packages())]
 install.packages(Packages_New)
 invisible(lapply(Packages, library, character.only = TRUE))
