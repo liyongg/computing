@@ -431,7 +431,7 @@ function_ICCG2D = function(n){
     u = u + inverse(M) %*% alpha * p
     r = r - alpha * A %*% p
     convcrit = norm(r)/norm(f)
-  }
+  } 
   
   return(u)
 }
