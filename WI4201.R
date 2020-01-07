@@ -370,7 +370,7 @@ n <- 2^7
 
 #### -------------------------- > 6 IC as BIM -------------------------- ####
 
-function_ICBIM2D = function(A, f, ...) {
+function_ICBIM = function(A, f, ...) {
   u = Matrix(0, nrow = nrow(f) , 1)
   I = diag(1, nrow = nrow(f), ncol = nrow(f))
   epsilon = 10^-10
@@ -391,11 +391,8 @@ function_ICBIM2D = function(A, f, ...) {
     convcrit = norm(r, type = '2')/normf
     iter = iter + 1
   }
-  return(iter)
+  return(u)
 }
-
-function_ICBIM2D(A_2D(9)[[1]], A_2D(9)[[2]])
-function_uexact2d(1/9,1/9)
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
@@ -405,38 +402,45 @@ function_uexact2d(1/9,1/9)
 
 #### -------------------------- > 10 Ic as preconditioner -------------------------- ####
 
-function_ICCG2D = function(n){
-  #first commit
-  u = Matrix(0, (n+1)^2 , 1)
-  A = A_2D(n)[[1]]
-  f = A_2D(n)[[2]]
+function_ICCG = function(A, f, ...){
+  u = Matrix(0, nrow = nrow(f) , 1)
   epsilon = 10^-10
-  iter = 1
-  r = f - A%*%u
-  Ktrans = ichol(A)
-  M = transpose(ktrans) %*% ktrans
-  convcrit = norm(r)/norm(f)
   
-  while(convcrit <= epsilon){
-    z = inverse(M)%*% r
-    if(iter == 1){
+  r = f - A %*% u
+  
+  k = icc(as.matrix(A))
+  M = k %*% t(k)
+  Minv = inv(M)
+  normf = norm(f, type = '2')
+  
+  convcrit = norm(r, type = '2')/normf
+  iter = 0
+  
+  while(epsilon <= convcrit){
+    z = Minv %*% r
+    
+    if(iter == 0){
       p = z
-      iter = 2
     }
     else{
-      beta = (transpose(r) %*% z)/(transpose(rold) %*% zold)
-      p = z + beta * p
+      beta = (t(r) %*% z)/(t(rold) %*% zold)
+      p = z + beta[1] * p
     }
+    
     rold = r
     zold = z
-    alpha = (transpose(r) %*% z) / (transpose(p) %*% A %*% p)
-    u = u + inverse(M) %*% alpha * p
-    r = r - alpha * A %*% p
-    convcrit = norm(r)/norm(f)
+    alpha = (t(r) %*% z) / (t(p) %*% A %*% p)
+    u = u + alpha[1] * p
+    r = r - alpha[1] * A %*% p
+    
+    iter = iter + 1
+    convcrit = norm(r, type = '2')/normf
   } 
   
   return(u)
 } 
+
+function_ICCG(A_2D(3)[[1]], A_2D(3)[[2]])
 
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
