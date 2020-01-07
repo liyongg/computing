@@ -1,5 +1,5 @@
 #Required packages
-Packages <- c('Matrix', 'spam', 'kernlab')
+Packages <- c('Matrix', 'spam', 'cPCG', 'matlib')
 Packages_New <- Packages[!(Packages %in% installed.packages())]
 install.packages(Packages_New)
 invisible(lapply(Packages, library, character.only = TRUE))
@@ -194,7 +194,7 @@ function_uexact2d = function(x,y){
 function_cholsolv2d = function(A,f, ...){
   
   #Use chol function for Cholesky decomposition
-  LT = Matrix::chol(A, pviot = ..., cache = TRUE)
+  LT = Matrix::chol(A, pivot = ..., cache = TRUE)
   L = t(LT)
   
   #Forward solve Ly = f
@@ -370,31 +370,32 @@ n <- 2^7
 
 #### -------------------------- > 6 IC as BIM -------------------------- ####
 
-function_ICBIM2D = function(n) {
-  u = Matrix(0, (n+1)^2 , 1)
-  I = diag(1, (n+1)^2, 1)
+function_ICBIM2D = function(A, f, ...) {
+  u = Matrix(0, nrow = nrow(f) , 1)
+  I = diag(1, nrow = nrow(f), ncol = nrow(f))
   epsilon = 10^-10
-  
-  A = A_2D(n)[[1]]
-  f = A_2D(n)[[2]]
   
   r = f - A%*%u
   
-  ktrans = inchol(A)
-  #M = transpose(ktrans) %*% ktrans
+  k = icc(as.matrix(A))
+  M = k %*% t(k)
+  Minv = inv(M)
+  normf = norm(f, type = '2')
+
+  convcrit = norm(r, type = '2')/normf
+  iter = 0
   
-  #convcrit = norm(r)/norm(f)
-  
-  #while(convcrit <= epsilon){
-  #u = u + inverse(M) %*% r
-  #r = (I - A %*% inverse(M)) %*% r
-  #convcrit = norm(r)/norm(f)
-  #}
-  
-  return(ktrans)
+  while(epsilon <= convcrit){
+    u = u + Minv %*% r
+    r = (I - A %*% Minv) %*% r
+    convcrit = norm(r, type = '2')/normf
+    iter = iter + 1
+  }
+  return(iter)
 }
 
-function_ICBIM2D(3)
+function_ICBIM2D(A_2D(9)[[1]], A_2D(9)[[2]])
+function_uexact2d(1/9,1/9)
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
@@ -431,7 +432,7 @@ function_ICCG2D = function(n){
     u = u + inverse(M) %*% alpha * p
     r = r - alpha * A %*% p
     convcrit = norm(r)/norm(f)
-  }
+  } 
   
   return(u)
 } 
