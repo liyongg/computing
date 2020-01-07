@@ -367,7 +367,34 @@ n <- 2^7
 (t = system.time(function_cholsolv2d(A_2D(n)[[1]], A_2D(n)[[2]], TRUE), gcFirst = TRUE))
 
 
+
 #### -------------------------- > 6 IC as BIM -------------------------- ####
+
+function_ICBIM2D = function(n) {
+  u = Matrix(0, (n+1)^2 , 1)
+  I = diag(1, (n+1)^2, 1)
+  epsilon = 10^-10
+  
+  A = A_2D(n)[[1]]
+  f = A_2D(n)[[2]]
+  
+  r = f - A%*%u
+  
+  ktrans = inchol(A)
+  #M = transpose(ktrans) %*% ktrans
+  
+  #convcrit = norm(r)/norm(f)
+  
+  #while(convcrit <= epsilon){
+  #u = u + inverse(M) %*% r
+  #r = (I - A %*% inverse(M)) %*% r
+  #convcrit = norm(r)/norm(f)
+  #}
+  
+  return(ktrans)
+}
+
+function_ICBIM2D(3)
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
@@ -376,6 +403,38 @@ n <- 2^7
 #### -------------------------- > 9 CPU time for IC as BIM -------------------------- ####
 
 #### -------------------------- > 10 Ic as preconditioner -------------------------- ####
+
+function_ICCG2D = function(n){
+  u = Matrix(0, (n+1)^2 , 1)
+  A = A_2D(n)[[1]]
+  f = A_2D(n)[[2]]
+  epsilon = 10^-10
+  iter = 1
+  r = f - A%*%u
+  Ktrans = ichol(A)
+  M = transpose(ktrans) %*% ktrans
+  convcrit = norm(r)/norm(f)
+  
+  while(convcrit <= epsilon){
+    z = inverse(M)%*% r
+    if(iter == 1){
+      p = z
+      iter = 2
+    }
+    else{
+      beta = (transpose(r) %*% z)/(transpose(rold) %*% zold)
+      p = z + beta * p
+    }
+    rold = r
+    zold = z
+    alpha = (transpose(r) %*% z) / (transpose(p) %*% A %*% p)
+    u = u + inverse(M) %*% alpha * p
+    r = r - alpha * A %*% p
+    convcrit = norm(r)/norm(f)
+  }
+  
+  return(u)
+}
 
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
