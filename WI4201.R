@@ -434,7 +434,7 @@ function_ICCG2D = function(n){
   }
   
   return(u)
-} 
+}  
 
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
