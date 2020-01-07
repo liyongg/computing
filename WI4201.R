@@ -390,7 +390,7 @@ function_ICBIM2D = function(n) {
   #r = (I - A %*% inverse(M)) %*% r
   #convcrit = norm(r)/norm(f)
   #}
-  
+  #ewa
   return(ktrans)
 }
 
