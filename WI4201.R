@@ -398,19 +398,19 @@ function_ICBIM = function(A, f, ...) {
   convcrit = norm(r, type = '2')/normf
   iter = 0
   
-  convcrit_array <- c(convcrit)
-  iter_array <- c(iter)
-  r_array = c(r)
+  # convcrit_array <- c(convcrit)
+  # iter_array <- c(iter)
+  # r_array = c(r)
   
   #update solution and residual until convergence criterion is met
   while(epsilon <= convcrit){
     u = u + Minv %*% r
     r = (I - A %*% Minv) %*% r
-    r_array = c(r_array, r)
+    # r_array = c(r_array, r)
     convcrit = norm(r, type = '2')/normf
-    convcrit_array <- c(convcrit_array, convcrit)
+    # convcrit_array <- c(convcrit_array, convcrit)
     iter = iter + 1
-    iter_array <- c(iter_array, iter)
+    # iter_array <- c(iter_array, iter)
   }
   return(list(u = u, iter = iter_array, convcrit = convcrit_array, r = r_array))
 }
@@ -512,6 +512,7 @@ for(i in 1:length(r_List)){
 
 #### -------------------------- > 9 CPU time for IC as BIM -------------------------- ####
 
+
 #### -------------------------- > 10 Ic as preconditioner -------------------------- ####
 
 #Incomplete Cholesky as preconditioner on Conjugate Gradient method
@@ -593,11 +594,47 @@ lines(uex, col = 'blue', lty = 2)
 
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
+# 2D
+Plot_List <- list()
+j <- 0
+
+for(i in c(5, 10, 15)){
+  j <- j + 1
+  ubim <- function_ICCG(A_2D(i)[[1]], A_2D(i)[[2]])
+  crit <- ubim$convcrit
+  iter <- ubim$iter
+  Plot_List[[j]] <- cbind(iter, crit)
+}
+plot(Plot_List[[3]], main = 'Convergence criterion as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-12),1))
+colours <- c('red', 'blue', 'black')
+for(i in 1:length(Plot_List)){
+  lines(Plot_List[[i]], col = colours[i], lty = i, lwd = 2)
+}
+abline(h = 10^(-10), col = 'green')
+legend(16, 1, legend=c("N = 19", "N = 61", 'N = 127', 'Conv. Crit.'),
+       col = c(colours, 'green'), lty = 1:3, cex=0.8)
+
+# 3D
+Plot_List <- list()
+j <- 0
+
+for(i in c(2, 4, 6)){
+  j <- j + 1
+  ubim <- function_ICCG(A_3D(i)[[1]], A_3D(i)[[2]])
+  crit <- ubim$convcrit
+  iter <- ubim$iter
+  Plot_List[[j]] <- cbind(iter, crit)
+}
+plot(Plot_List[[3]], main = 'Convergence criterion as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-17),1))
+colours <- c('red', 'blue', 'black')
+for(i in 1:length(Plot_List)){
+  lines(Plot_List[[i]], col = colours[i], lty = i, lwd = 2)
+}
+abline(h = 10^(-10), col = 'green')
+legend(9, 1, legend=c("N = 3", "N = 15", 'N = 29', 'Conv. Crit.'),
+       col = c(colours, 'green'), lty = 1:3, cex=0.8)
+
 #### -------------------------- > 12 CPU time for IC as preconditioner -------------------------- ####
-
-
-system.time(function_ICCG(A_3D(6)[[1]], A_3D(6)[[2]]))
-system.time(function_ICBIM(A_3D(6)[[1]], A_3D(6)[[2]]))
 
 
 
