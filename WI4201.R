@@ -292,7 +292,7 @@ function_cholacc3d = function(u){
 
 
 #### 2D #### 
-t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
+# t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
 
 n_2D <- 2^(2:7)
 nPlot_2D <- seq(1,
@@ -322,7 +322,7 @@ plot(n_2D, Times_2D,
 lines(nPlot_2D, Fits_TO2D)
 
 #### 3D ####
-t = system.time(function_cholsolv3d(A_3D(n)[[1]],A_3D(n)[[2]]), gcFirst = TRUE)
+# t = system.time(function_cholsolv3d(A_3D(n)[[1]],A_3D(n)[[2]]), gcFirst = TRUE)
 
 n_3D <- 2^(2:5)
 nPlot_3D <- seq(1,
@@ -370,21 +370,29 @@ n <- 2^7
 
 #### -------------------------- > 6 IC as BIM -------------------------- ####
 
+#Incomplete Cholesky as basic iterative method
 function_ICBIM = function(A, f, ...) {
+  #initialization
   u = Matrix(0, nrow = nrow(f) , 1)
   I = diag(1, nrow = nrow(f), ncol = nrow(f))
   epsilon = 10^-10
   
+  #calculate first resudual r
   r = f - A%*%u
   
+  #calculate Incomplete Cholesky decomposition
   k = icc(as.matrix(A))
   M = k %*% t(k)
   Minv = inv(M)
+  
+  #calculate 2-norm of f
   normf = norm(f, type = '2')
-
+  
+  #calculate the convergence criterion
   convcrit = norm(r, type = '2')/normf
   iter = 0
   
+  #update solution and residual until convergence criterion is met
   while(epsilon <= convcrit){
     u = u + Minv %*% r
     r = (I - A %*% Minv) %*% r
@@ -394,6 +402,21 @@ function_ICBIM = function(A, f, ...) {
   return(u)
 }
 
+ubim <- function_ICBIM(A_2D(9)[[1]], A_2D(9)[[2]])
+
+n <- 9
+x <- rep(seq(0, 1, by = 1/n),
+         (n+1))
+y <- x[order(x)]
+uex <- function_uexact2d(x, y)
+
+plot(ubim, main = 'IC as BIM (2D)', cex = 0, ylab = 'u', xlab = '')
+legend(0, 1, legend=c("u IC as BIM", "u exact"),
+       col=c("red", "blue"), lty=1:2, cex=0.8)
+lines(ubim, col = 'red', lty = 1)
+lines(uex, col = 'blue', lty = 2)
+
+
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
 #### -------------------------- > 8 Residual reduction factor for last 5 iterations -------------------------- ####
@@ -402,34 +425,45 @@ function_ICBIM = function(A, f, ...) {
 
 #### -------------------------- > 10 Ic as preconditioner -------------------------- ####
 
+#Incomplete Cholesky as preconditioner on Conjugate Gradient method
 function_ICCG = function(A, f, ...){
+  #initialization
   u = Matrix(0, nrow = nrow(f) , 1)
   epsilon = 10^-10
   
-  r = f - A %*% u
+  #calculate first resudual r
+  r = f - A %% u
   
+  #calculate Incomplete Cholesky decomposition
   k = icc(as.matrix(A))
-  M = k %*% t(k)
+  M = k %% t(k)
   Minv = inv(M)
+  
+  #calculate 2-norm of f
   normf = norm(f, type = '2')
   
+  #calculate convergence criterion
   convcrit = norm(r, type = '2')/normf
   iter = 0
   
+  #update values until convergence criterion is met
   while(epsilon <= convcrit){
-    z = Minv %*% r
+    #preconditioning
+    z = Minv %% r
     
     if(iter == 0){
       p = z
     }
     else{
-      beta = (t(r) %*% z)/(t(rold) %*% zold)
+      beta = (t(r) %% z)/(t(rold) %*% zold)
       p = z + beta[1] * p
     }
     
+    #keep values r^(k-1) and z^(k-1) for the calculation of beta
     rold = r
     zold = z
-    alpha = (t(r) %*% z) / (t(p) %*% A %*% p)
+    
+    alpha = (t(r) %% z) / (t(p) %% A %*% p)
     u = u + alpha[1] * p
     r = r - alpha[1] * A %*% p
     
@@ -438,7 +472,27 @@ function_ICCG = function(A, f, ...){
   } 
   
   return(u)
-} 
+}
+
+uiccg <- function_ICCG(A_3D(3)[[1]], A_3D(3)[[2]])
+
+n <- 3
+x <- rep(seq(0, 1, by = 1/n),
+         (n+1)^2)
+y <- rep(seq(0, 1, by = 1/n),
+         n+1)
+y <- rep(y[order(y)],
+         n+1)
+z <- rep(seq(0, 1, by = 1/n),
+         (n+1)^2)
+z <- z[order(z)]
+uex <- function_uexact3d(x, y, z)
+
+plot(uiccg, main = 'ICCG (3D)', cex = 0, ylab = 'u', xlab = '')
+legend(0, 1, legend=c("u ICCG", "u exact"),
+       col=c("red", "blue"), lty=1:2, cex=0.8)
+lines(uiccg, col = 'red', lty = 1)
+lines(uex, col = 'blue', lty = 2)
 
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
