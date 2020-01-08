@@ -440,8 +440,6 @@ function_ICCG = function(A, f, ...){
   return(u)
 } 
 
-function_ICCG(A_2D(3)[[1]], A_2D(3)[[2]])
-
 #### -------------------------- > 11 Log plot of condition against index, compare with 7 -------------------------- ####
 
 #### -------------------------- > 12 CPU time for IC as preconditioner -------------------------- ####
