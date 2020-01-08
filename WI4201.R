@@ -288,33 +288,38 @@ function_cholacc3d = function(u){
 
 #### -------------------------- > 3 Plotting -------------------------- ####
 
-# t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
-
-
 #### 2D #### 
-# t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
+t = system.time(function_cholsolv2d(A_2D(n)[[1]],A_2D(n)[[2]]), gcFirst = TRUE)
 
+# Create sequences
 n_2D <- 2^(2:7)
 nPlot_2D <- seq(1,
                 128,
                 0.1)
+
+# Save times in array
 Times_2D <- c(0.08, 0.17, 0.44, 1.53, 5.64, 42.72)
+# Create dataframe containing the saved times, and sequences of n_2D and its powers.
 DF_2D <- data.frame(Time = Times_2D,
                     n = n_2D,
                     n2 = n_2D^2,
                     n3 = n_2D^3)
+# Create second and third order polynomial models for the CPU times
 Model_SO2D <- lm(Time ~ n + n2, data = DF_2D)
 Model_TO2D <- lm(Time ~ n + n2 + n3, data = DF_2D)
 
+# Calculate the fitted values from the models before
 Fits_SO2D <- predict(Model_SO2D, list(n = nPlot_2D, n2 = nPlot_2D^2))
 Fits_TO2D <- predict(Model_TO2D, list(n = nPlot_2D, n2 = nPlot_2D^2, n3 = nPlot_2D^3))
 
+# Plot the second order polynomial fit and the CPU times
 plot(n_2D, Times_2D, 
      main = 'Second order polynomial fit (2D)',
      ylab = 'CPU Time [s]',
      xlab = 'N')
 lines(nPlot_2D, Fits_SO2D)
 
+# Plot the third order polynomial fit and the CPU times
 plot(n_2D, Times_2D, 
      main = 'Third order polynomial fit (2D)',
      ylab = 'CPU Time [s]',
@@ -322,7 +327,8 @@ plot(n_2D, Times_2D,
 lines(nPlot_2D, Fits_TO2D)
 
 #### 3D ####
-# t = system.time(function_cholsolv3d(A_3D(n)[[1]],A_3D(n)[[2]]), gcFirst = TRUE)
+# Same concept as in 2D case
+t = system.time(function_cholsolv3d(A_3D(n)[[1]],A_3D(n)[[2]]), gcFirst = TRUE)
 
 n_3D <- 2^(2:5)
 nPlot_3D <- seq(1,
