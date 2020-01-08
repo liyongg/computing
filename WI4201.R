@@ -474,6 +474,41 @@ legend(23, 1, legend=c("N = 3", "N = 15", 'N = 29', 'Conv. Crit.'),
        col = c(colours, 'green'), lty = 1:3, cex=0.8)
 
 #### -------------------------- > 8 Residual reduction factor for last 5 iterations -------------------------- ####
+# 2D
+r_List <- list()
+j <- 0
+
+for(i in c(5, 10, 15)){
+  j <- j + 1
+  ubim <- function_ICBIM(A_2D(i)[[1]], A_2D(i)[[2]])
+  r <- ubim$r
+  r_List[[j]] <- r
+}
+
+rred_list <- list()
+factor_list <- list()
+for(i in 1:length(r_List)){
+  rred_list[[i]] <- tail(sapply(r_List[[i]], norm, type = '2'), 5)
+  factor_list[[i]] <- rred_list[[i]][2:5] / rred_list[[i]][1:4]
+}
+
+# 3D
+r_List <- list()
+j <- 0
+
+for(i in c(2, 4, 6)){
+  j <- j + 1
+  ubim <- function_ICBIM(A_3D(i)[[1]], A_3D(i)[[2]])
+  r <- ubim$r
+  r_List[[j]] <- r
+}
+
+rred_list <- list()
+factor_list <- list()
+for(i in 1:length(r_List)){
+  rred_list[[i]] <- tail(sapply(r_List[[i]], norm, type = '2'), 5)
+  factor_list[[i]] <- rred_list[[i]][2:5] / rred_list[[i]][1:4]
+}
 
 #### -------------------------- > 9 CPU time for IC as BIM -------------------------- ####
 
