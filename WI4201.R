@@ -398,17 +398,23 @@ function_ICBIM = function(A, f, ...) {
   convcrit = norm(r, type = '2')/normf
   iter = 0
   
+  convcrit_array <- c(convcrit)
+  iter_array <- c(iter)
+  
   #update solution and residual until convergence criterion is met
   while(epsilon <= convcrit){
     u = u + Minv %*% r
     r = (I - A %*% Minv) %*% r
     convcrit = norm(r, type = '2')/normf
+    convcrit_array <- c(convcrit_array, convcrit)
     iter = iter + 1
+    iter_array <- c(iter_array, iter)
   }
-  return(u)
+  return(list(u = u, iter = iter_array, convcrit = convcrit_array))
 }
 
-ubim <- function_ICBIM(A_2D(9)[[1]], A_2D(9)[[2]])
+# Plot for confirmation
+ubim <- function_ICBIM(A_2D(9)[[1]], A_2D(9)[[2]])$u
 
 n <- 9
 x <- rep(seq(0, 1, by = 1/n),
@@ -425,6 +431,46 @@ lines(uex, col = 'blue', lty = 2)
 
 #### -------------------------- > 7 Log plot of condition against index -------------------------- ####
 
+# 2D
+Plot_List <- list()
+j <- 0
+
+for(i in c(5, 10, 15)){
+  j <- j + 1
+  ubim <- function_ICBIM(A_2D(i)[[1]], A_2D(i)[[2]])
+  crit <- ubim$convcrit
+  iter <- ubim$iter
+  Plot_List[[j]] <- cbind(iter, crit)
+}
+plot(Plot_List[[3]], main = 'Convergence as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-11),1))
+colours <- c('red', 'blue', 'black')
+for(i in 1:length(Plot_List)){
+  lines(Plot_List[[i]], col = colours[i], lty = i, lwd = 2)
+}
+abline(h = 10^(-10), col = 'green')
+legend(100, 1, legend=c("N = 19", "N = 61", 'N = 127'),
+       col = colours, lty = 1:3, cex=0.8)
+
+# 3D
+Plot_List <- list()
+j <- 0
+
+for(i in c(2, 4, 6)){
+  j <- j + 1
+  ubim <- function_ICBIM(A_3D(i)[[1]], A_3D(i)[[2]])
+  crit <- ubim$convcrit
+  iter <- ubim$iter
+  Plot_List[[j]] <- cbind(iter, crit)
+}
+plot(Plot_List[[3]], main = 'Convergence as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-17),1))
+colours <- c('red', 'blue', 'black')
+for(i in 1:length(Plot_List)){
+  lines(Plot_List[[i]], col = colours[i], lty = i, lwd = 2)
+}
+abline(h = 10^(-10), col = 'green')
+legend(23, 1, legend=c("N = 3", "N = 15", 'N = 29'),
+       col = colours, lty = 1:3, cex=0.8)
+
 #### -------------------------- > 8 Residual reduction factor for last 5 iterations -------------------------- ####
 
 #### -------------------------- > 9 CPU time for IC as BIM -------------------------- ####
@@ -438,11 +484,11 @@ function_ICCG = function(A, f, ...){
   epsilon = 10^-10
   
   #calculate first resudual r
-  r = f - A %% u
+  r = f - A %*% u
   
   #calculate Incomplete Cholesky decomposition
   k = icc(as.matrix(A))
-  M = k %% t(k)
+  M = k %*% t(k)
   Minv = inv(M)
   
   #calculate 2-norm of f
@@ -452,16 +498,19 @@ function_ICCG = function(A, f, ...){
   convcrit = norm(r, type = '2')/normf
   iter = 0
   
+  convcrit_array <- c(convcrit)
+  iter_array <- c(iter)
+  
   #update values until convergence criterion is met
   while(epsilon <= convcrit){
     #preconditioning
-    z = Minv %% r
+    z = Minv %*% r
     
     if(iter == 0){
       p = z
     }
     else{
-      beta = (t(r) %% z)/(t(rold) %*% zold)
+      beta = (t(r) %*% z)/(t(rold) %*% zold)
       p = z + beta[1] * p
     }
     
@@ -469,18 +518,23 @@ function_ICCG = function(A, f, ...){
     rold = r
     zold = z
     
-    alpha = (t(r) %% z) / (t(p) %% A %*% p)
+    alpha = (t(r) %*% z) / (t(p) %*% A %*% p)
     u = u + alpha[1] * p
     r = r - alpha[1] * A %*% p
     
     iter = iter + 1
     convcrit = norm(r, type = '2')/normf
+    
+    convcrit_array <- c(convcrit_array, convcrit)
+    iter_array <- c(iter_array, iter)
+    
   } 
   
-  return(u)
+  return(list(u = u, iter = iter_array, convcrit = convcrit_array))
 }
 
-uiccg <- function_ICCG(A_3D(3)[[1]], A_3D(3)[[2]])
+# Plot for confirmation
+uiccg <- function_ICCG(A_3D(3)[[1]], A_3D(3)[[2]])$u
 
 n <- 3
 x <- rep(seq(0, 1, by = 1/n),
@@ -505,7 +559,8 @@ lines(uex, col = 'blue', lty = 2)
 #### -------------------------- > 12 CPU time for IC as preconditioner -------------------------- ####
 
 
-
+system.time(function_ICCG(A_3D(6)[[1]], A_3D(6)[[2]]))
+system.time(function_ICBIM(A_3D(6)[[1]], A_3D(6)[[2]]))
 
 
 
