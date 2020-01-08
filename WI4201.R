@@ -400,17 +400,19 @@ function_ICBIM = function(A, f, ...) {
   
   convcrit_array <- c(convcrit)
   iter_array <- c(iter)
+  r_array = c(r)
   
   #update solution and residual until convergence criterion is met
   while(epsilon <= convcrit){
     u = u + Minv %*% r
     r = (I - A %*% Minv) %*% r
+    r_array = c(r_array, r)
     convcrit = norm(r, type = '2')/normf
     convcrit_array <- c(convcrit_array, convcrit)
     iter = iter + 1
     iter_array <- c(iter_array, iter)
   }
-  return(list(u = u, iter = iter_array, convcrit = convcrit_array))
+  return(list(u = u, iter = iter_array, convcrit = convcrit_array, r = r_array))
 }
 
 # Plot for confirmation
