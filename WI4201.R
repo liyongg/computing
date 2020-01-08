@@ -442,14 +442,14 @@ for(i in c(5, 10, 15)){
   iter <- ubim$iter
   Plot_List[[j]] <- cbind(iter, crit)
 }
-plot(Plot_List[[3]], main = 'Convergence as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-11),1))
+plot(Plot_List[[3]], main = 'Convergence criterion as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-11),1))
 colours <- c('red', 'blue', 'black')
 for(i in 1:length(Plot_List)){
   lines(Plot_List[[i]], col = colours[i], lty = i, lwd = 2)
 }
 abline(h = 10^(-10), col = 'green')
-legend(100, 1, legend=c("N = 19", "N = 61", 'N = 127'),
-       col = colours, lty = 1:3, cex=0.8)
+legend(100, 1, legend=c("N = 19", "N = 61", 'N = 127', 'Conv. Crit.'),
+       col = c(colours, 'green'), lty = 1:3, cex=0.8)
 
 # 3D
 Plot_List <- list()
@@ -462,14 +462,14 @@ for(i in c(2, 4, 6)){
   iter <- ubim$iter
   Plot_List[[j]] <- cbind(iter, crit)
 }
-plot(Plot_List[[3]], main = 'Convergence as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-17),1))
+plot(Plot_List[[3]], main = 'Convergence criterion as function of iteration', cex = 0, ylab = 'Ratio', xlab = 'm', log = 'y', ylim = c(10^(-17),1))
 colours <- c('red', 'blue', 'black')
 for(i in 1:length(Plot_List)){
   lines(Plot_List[[i]], col = colours[i], lty = i, lwd = 2)
 }
 abline(h = 10^(-10), col = 'green')
-legend(23, 1, legend=c("N = 3", "N = 15", 'N = 29'),
-       col = colours, lty = 1:3, cex=0.8)
+legend(23, 1, legend=c("N = 3", "N = 15", 'N = 29', 'Conv. Crit.'),
+       col = c(colours, 'green'), lty = 1:3, cex=0.8)
 
 #### -------------------------- > 8 Residual reduction factor for last 5 iterations -------------------------- ####
 
